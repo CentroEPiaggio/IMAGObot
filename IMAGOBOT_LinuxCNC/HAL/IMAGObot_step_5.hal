@@ -1,0 +1,430 @@
+### Core HAL config file for Stepper generation of IMAGObot robot arm - 5 DOF
+#
+# Copyright Chew-Z 2017, Marco Antoni,Michele Scorsipa
+#
+
+### Initial MESA configuration
+loadrt not count=1
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+loadrt hostmot2
+loadrt hm2_eth board_ip=192.168.1.121 config=" num_encoders=5 num_pwmgens=0 num_stepgens=5 sserial_port_0=0000xx"
+setp    hm2_7i80.0.watchdog.timeout_ns 5000000
+loadrt pid names=pid.x,pid.y,pid.z,pid.a,pid.b
+
+addf hm2_7i80.0.read          servo-thread
+addf motion-command-handler   servo-thread
+addf motion-controller        servo-thread
+addf pid.x.do-pid-calcs       servo-thread
+addf pid.y.do-pid-calcs       servo-thread
+addf pid.z.do-pid-calcs       servo-thread
+addf pid.a.do-pid-calcs       servo-thread
+addf pid.b.do-pid-calcs       servo-thread
+addf hm2_7i80.0.write         servo-thread
+
+addf not.0		      servo-thread
+
+
+######################################################
+
+#*******************
+# JOINT 0
+#*******************
+
+# Step Gen signals/setup
+
+setp   hm2_7i80.0.stepgen.00.dirsetup        [AXIS_0]DIRSETUP
+setp   hm2_7i80.0.stepgen.00.dirhold         [AXIS_0]DIRHOLD
+setp   hm2_7i80.0.stepgen.00.steplen         [AXIS_0]STEPLEN
+setp   hm2_7i80.0.stepgen.00.stepspace       [AXIS_0]STEPSPACE
+setp   hm2_7i80.0.stepgen.00.position-scale  [AXIS_0]STEP_SCALE
+setp   hm2_7i80.0.stepgen.00.step_type        0
+setp   hm2_7i80.0.stepgen.00.control-type     1
+setp   hm2_7i80.0.stepgen.00.maxaccel         [AXIS_0]STEPGEN_MAXACCEL
+setp   hm2_7i80.0.stepgen.00.maxvel           [AXIS_0]STEPGEN_MAXVEL
+
+# Encoder setup
+setp hm2_7i80.0.encoder.00.counter-mode 0
+setp hm2_7i80.0.encoder.00.index-invert 0
+setp hm2_7i80.0.encoder.00.scale [AXIS_0]ENCODER_SCALE
+
+# ---closedloop stepper signals---
+
+# PID component setup:
+
+setp   pid.x.Pgain     [AXIS_0]P
+setp   pid.x.Igain     [AXIS_0]I
+setp   pid.x.Dgain     [AXIS_0]D
+setp   pid.x.bias      [AXIS_0]BIAS
+setp   pid.x.FF0       [AXIS_0]FF0
+setp   pid.x.FF1       [AXIS_0]FF1
+setp   pid.x.FF2       [AXIS_0]FF2
+setp   pid.x.deadband  [AXIS_0]DEADBAND
+setp   pid.x.maxoutput [AXIS_0]MAX_OUTPUT
+setp   pid.x.error-previous-target true
+
+# Index enable connections (N:B: homing to index):
+net x-index-enable hm2_7i80.0.encoder.00.index-enable => pid.x.index-enable axis.0.index-enable
+
+# Enable axis:
+net x-enable hm2_7i80.0.stepgen.00.enable => pid.x.enable axis.0.amp-enable-out
+
+# Commanded position:
+net x-pos-cmd axis.0.motor-pos-cmd => pid.x.command
+
+# Commanded velocity:
+net x-vel-cm axis.0.joint-vel-cmd => pid.x.command-deriv
+
+# Feedback position:
+net x-pos-fb hm2_7i80.0.encoder.00.position => pid.x.feedback axis.0.motor-pos-fb
+
+# Feedback velocity:
+net x-vel-fb hm2_7i80.0.encoder.00.velocity => pid.x.feedback-deriv 
+
+# Output commands:
+net x-output pid.x.output => hm2_7i80.0.stepgen.00.velocity-cmd
+
+# Signal for rawcount number:
+net x-pos-rawcounts    <= hm2_7i80.0.encoder.00.rawcounts
+
+# ---setup home / limit switch signals---
+
+net x-home-sig not.0.in <= hm2_7i80.0.encoder.00.input-index
+net x-home-sw <= not.0.out
+
+#net x-home-sw   <= hm2_7i80.0.7i76.0.0.input-00
+net x-home-sw   => axis.0.home-sw-in
+#net x-home-sw   =>  axis.0.neg-lim-sw-in
+
+#*******************
+# JOINT 1
+#*******************
+
+setp   pid.y.Pgain     [AXIS_1]P
+setp   pid.y.Igain     [AXIS_1]I
+setp   pid.y.Dgain     [AXIS_1]D
+setp   pid.y.bias      [AXIS_1]BIAS
+setp   pid.y.FF0       [AXIS_1]FF0
+setp   pid.y.FF1       [AXIS_1]FF1
+setp   pid.y.FF2       [AXIS_1]FF2
+setp   pid.y.deadband  [AXIS_1]DEADBAND
+setp   pid.y.maxoutput [AXIS_1]MAX_OUTPUT
+setp   pid.y.error-previous-target true
+
+net y-index-enable  <=> pid.y.index-enable
+net y-enable        =>  pid.y.enable
+net y-pos-cmd       =>  pid.y.command
+net y-vel-cmd       =>  pid.y.command-deriv
+net y-pos-fb        =>  pid.y.feedback
+net y-output        <=  pid.y.output
+
+# Step Gen signals/setup
+
+setp   hm2_7i80.0.stepgen.01.dirsetup        [AXIS_1]DIRSETUP
+setp   hm2_7i80.0.stepgen.01.dirhold         [AXIS_1]DIRHOLD
+setp   hm2_7i80.0.stepgen.01.steplen         [AXIS_1]STEPLEN
+setp   hm2_7i80.0.stepgen.01.stepspace       [AXIS_1]STEPSPACE
+setp   hm2_7i80.0.stepgen.01.position-scale  [AXIS_1]STEP_SCALE
+setp   hm2_7i80.0.stepgen.01.step_type        0
+setp   hm2_7i80.0.stepgen.01.control-type     1
+setp   hm2_7i80.0.stepgen.01.maxaccel         [AXIS_1]STEPGEN_MAXACCEL
+setp   hm2_7i80.0.stepgen.01.maxvel           [AXIS_1]STEPGEN_MAXVEL
+
+# Encoder setup
+setp hm2_7i80.0.encoder.01.counter-mode 0
+setp hm2_7i80.0.encoder.01.index-invert 0
+setp hm2_7i80.0.encoder.01.scale [AXIS_1]ENCODER_SCALE
+
+# ---closedloop stepper signals---
+
+# Index enable connections (N:B: homing to index):
+net y-index-enable hm2_7i80.0.encoder.01.index-enable => pid.y.index-enable axis.1.index-enable
+
+# Enable axis:
+net y-enable hm2_7i80.0.stepgen.01.enable => pid.y.enable axis.1.amp-enable-out
+
+# Commanded position:
+net y-pos-cmd axis.1.motor-pos-cmd => pid.y.command
+
+# Commanded velocity:
+net y-vel-cmd axis.1.joint-vel-cmd => pid.y.command-deriv
+
+# Feedback position:
+net y-pos-fb hm2_7i80.0.encoder.01.position => pid.y.feedback axis.1.motor-pos-fb
+
+# Feedback velocity:
+net y-vel-fb hm2_7i80.0.encoder.01.velocity => pid.y.feedback-deriv 
+
+# Output commands:
+net y-output pid.y.output => hm2_7i80.0.stepgen.01.velocity-cmd
+
+# Signal for rawcount number:
+net y-pos-rawcounts    <= hm2_7i80.0.encoder.01.rawcounts
+
+# ---setup home / limit switch signals---
+
+net y-home-sw   <= hm2_7i80.0.encoder.01.input-index
+net y-home-sw   => axis.1.home-sw-in
+#net y-home-sw   =>  axis.1.neg-lim-sw-in
+
+
+#*******************
+# JOINT 2
+#*******************
+
+setp   pid.z.Pgain     [AXIS_2]P
+setp   pid.z.Igain     [AXIS_2]I
+setp   pid.z.Dgain     [AXIS_2]D
+setp   pid.z.bias      [AXIS_2]BIAS
+setp   pid.z.FF0       [AXIS_2]FF0
+setp   pid.z.FF1       [AXIS_2]FF1
+setp   pid.z.FF2       [AXIS_2]FF2
+setp   pid.z.deadband  [AXIS_2]DEADBAND
+setp   pid.z.maxoutput [AXIS_2]MAX_OUTPUT
+setp   pid.z.error-previous-target true
+
+net z-index-enable  <=> pid.z.index-enable
+net z-enable        =>  pid.z.enable
+net z-pos-cmd       =>  pid.z.command
+net z-vel-cmd       =>  pid.z.command-deriv
+net z-pos-fb        =>  pid.z.feedback
+net z-output        <=  pid.z.output
+
+# Step Gen signals/setup
+
+setp   hm2_7i80.0.stepgen.02.dirsetup        [AXIS_2]DIRSETUP
+setp   hm2_7i80.0.stepgen.02.dirhold         [AXIS_2]DIRHOLD
+setp   hm2_7i80.0.stepgen.02.steplen         [AXIS_2]STEPLEN
+setp   hm2_7i80.0.stepgen.02.stepspace       [AXIS_2]STEPSPACE
+setp   hm2_7i80.0.stepgen.02.position-scale  [AXIS_2]STEP_SCALE
+setp   hm2_7i80.0.stepgen.02.step_type        0
+setp   hm2_7i80.0.stepgen.02.control-type     1
+setp   hm2_7i80.0.stepgen.02.maxaccel         [AXIS_2]STEPGEN_MAXACCEL
+setp   hm2_7i80.0.stepgen.02.maxvel           [AXIS_2]STEPGEN_MAXVEL
+
+# Encoder setup
+setp hm2_7i80.0.encoder.02.counter-mode 0
+setp hm2_7i80.0.encoder.02.index-invert 0
+setp hm2_7i80.0.encoder.02.scale [AXIS_2]ENCODER_SCALE
+
+# ---closedloop stepper signals---
+
+# Index enable connections (N:B: homing to index):
+net z-index-enable hm2_7i80.0.encoder.02.index-enable => pid.z.index-enable axis.2.index-enable
+
+# Enable axis:
+net z-enable hm2_7i80.0.stepgen.02.enable => pid.z.enable axis.2.amp-enable-out
+
+# Commanded position:
+net z-pos-cmd axis.2.motor-pos-cmd => pid.z.command
+
+# Commanded velocity:
+net z-vel-cmd axis.2.joint-vel-cmd => pid.z.command-deriv
+
+# Feedback position:
+net z-pos-fb hm2_7i80.0.encoder.02.position => pid.z.feedback axis.2.motor-pos-fb
+
+# Feedback velocity:
+net z-vel-fb hm2_7i80.0.encoder.02.velocity => pid.z.feedback-deriv 
+
+# Output commands:
+net z-output pid.z.output => hm2_7i80.0.stepgen.02.velocity-cmd
+
+# Signal for rawcount number:
+net z-pos-rawcounts    <= hm2_7i80.0.encoder.02.rawcounts
+
+# ---setup home / limit switch signals---
+
+net z-home-sw   <= hm2_7i80.0.encoder.02.input-index
+net z-home-sw   => axis.2.home-sw-in
+#net z-home-sw   =>  axis.2.neg-lim-sw-in
+
+
+#*******************
+# JOINT 3
+#*******************
+
+setp   pid.a.Pgain     [AXIS_3]P
+setp   pid.a.Igain     [AXIS_3]I
+setp   pid.a.Dgain     [AXIS_3]D
+setp   pid.a.bias      [AXIS_3]BIAS
+setp   pid.a.FF0       [AXIS_3]FF0
+setp   pid.a.FF1       [AXIS_3]FF1
+setp   pid.a.FF2       [AXIS_3]FF2
+setp   pid.a.deadband  [AXIS_3]DEADBAND
+setp   pid.a.maxoutput [AXIS_3]MAX_OUTPUT
+setp   pid.a.error-previous-target true
+
+net a-index-enable  <=> pid.a.index-enable
+net a-enable        =>  pid.a.enable
+net a-pos-cmd       =>  pid.a.command
+net a-vel-cmd       =>  pid.a.command-deriv
+net a-pos-fb        =>  pid.a.feedback
+net a-output        <=  pid.a.output
+
+# Step Gen signals/setup
+
+setp   hm2_7i80.0.stepgen.03.dirsetup        [AXIS_3]DIRSETUP
+setp   hm2_7i80.0.stepgen.03.dirhold         [AXIS_3]DIRHOLD
+setp   hm2_7i80.0.stepgen.03.steplen         [AXIS_3]STEPLEN
+setp   hm2_7i80.0.stepgen.03.stepspace       [AXIS_3]STEPSPACE
+setp   hm2_7i80.0.stepgen.03.position-scale  [AXIS_3]STEP_SCALE
+setp   hm2_7i80.0.stepgen.03.step_type        0
+setp   hm2_7i80.0.stepgen.03.control-type     1
+setp   hm2_7i80.0.stepgen.03.maxaccel         [AXIS_3]STEPGEN_MAXACCEL
+setp   hm2_7i80.0.stepgen.03.maxvel           [AXIS_3]STEPGEN_MAXVEL
+
+# Encoder setup
+setp hm2_7i80.0.encoder.03.counter-mode 0
+setp hm2_7i80.0.encoder.03.index-invert 0
+setp hm2_7i80.0.encoder.03.scale [AXIS_3]ENCODER_SCALE
+
+# ---closedloop stepper signals---
+
+# Index enable connections (N:B: homing to index):
+net a-index-enable hm2_7i80.0.encoder.03.index-enable => pid.a.index-enable axis.3.index-enable
+
+# Enable axis:
+net a-enable hm2_7i80.0.stepgen.03.enable => pid.a.enable axis.3.amp-enable-out
+
+# Commanded position:
+net a-pos-cmd axis.3.motor-pos-cmd => pid.a.command
+
+# Commanded velocity:
+net a-vel-cmd axis.3.joint-vel-cmd => pid.a.command-deriv
+
+# Feedback position:
+net a-pos-fb hm2_7i80.0.encoder.03.position => pid.a.feedback axis.3.motor-pos-fb
+
+# Feedback velocity:
+net a-vel-fb hm2_7i80.0.encoder.03.velocity => pid.a.feedback-deriv 
+
+# Output commands:
+net a-output pid.a.output => hm2_7i80.0.stepgen.03.velocity-cmd
+
+# Signal for rawcount number:
+net a-pos-rawcounts    <= hm2_7i80.0.encoder.03.rawcounts
+
+# ---setup home / limit switch signals---
+
+net a-home-sw   <= hm2_7i80.0.encoder.03.input-index
+net a-home-sw   => axis.3.home-sw-in
+#net a-home-sw   =>  axis.3.neg-lim-sw-in
+
+
+#*******************
+# JOINT 4
+#*******************
+
+setp   pid.b.Pgain     [AXIS_4]P
+setp   pid.b.Igain     [AXIS_4]I
+setp   pid.b.Dgain     [AXIS_4]D
+setp   pid.b.bias      [AXIS_4]BIAS
+setp   pid.b.FF0       [AXIS_4]FF0
+setp   pid.b.FF1       [AXIS_4]FF1
+setp   pid.b.FF2       [AXIS_4]FF2
+setp   pid.b.deadband  [AXIS_4]DEADBAND
+setp   pid.b.maxoutput [AXIS_4]MAX_OUTPUT
+setp   pid.b.error-previous-target true
+
+net b-index-enable  <=> pid.b.index-enable
+net b-enable        =>  pid.b.enable
+net b-pos-cmd       =>  pid.b.command
+net b-vel-cmd       =>  pid.b.command-deriv
+net b-pos-fb        =>  pid.b.feedback
+net b-output        <=  pid.b.output
+
+# Step Gen signals/setup
+
+setp   hm2_7i80.0.stepgen.04.dirsetup        [AXIS_4]DIRSETUP
+setp   hm2_7i80.0.stepgen.04.dirhold         [AXIS_4]DIRHOLD
+setp   hm2_7i80.0.stepgen.04.steplen         [AXIS_4]STEPLEN
+setp   hm2_7i80.0.stepgen.04.stepspace       [AXIS_4]STEPSPACE
+setp   hm2_7i80.0.stepgen.04.position-scale  [AXIS_4]STEP_SCALE
+setp   hm2_7i80.0.stepgen.04.step_type        0
+setp   hm2_7i80.0.stepgen.04.control-type     1
+setp   hm2_7i80.0.stepgen.04.maxaccel         [AXIS_4]STEPGEN_MAXACCEL
+setp   hm2_7i80.0.stepgen.04.maxvel           [AXIS_4]STEPGEN_MAXVEL
+
+# Encoder setup
+setp hm2_7i80.0.encoder.04.counter-mode 0
+setp hm2_7i80.0.encoder.04.index-invert 0
+setp hm2_7i80.0.encoder.04.scale [AXIS_4]ENCODER_SCALE
+
+# ---closedloop stepper signals---
+
+# Index enable connections (N:B: homing to index):
+net b-index-enable hm2_7i80.0.encoder.04.index-enable => pid.b.index-enable axis.4.index-enable
+
+# Enable axis:
+net b-enable hm2_7i80.0.stepgen.04.enable => pid.b.enable axis.4.amp-enable-out
+
+# Commanded position:
+net b-pos-cmd axis.4.motor-pos-cmd => pid.b.command
+
+# Commanded velocity:
+net b-vel-cmd axis.4.joint-vel-cmd => pid.b.command-deriv
+
+# Feedback position:
+net b-pos-fb hm2_7i80.0.encoder.04.position => pid.b.feedback axis.4.motor-pos-fb
+
+# Feedback velocity:
+net b-vel-fb hm2_7i80.0.encoder.04.velocity => pid.b.feedback-deriv 
+
+# Output commands:
+net b-output pid.b.output => hm2_7i80.0.stepgen.04.velocity-cmd
+
+# Signal for rawcount number:
+net b-pos-rawcounts    <= hm2_7i80.0.encoder.04.rawcounts
+
+# ---setup home / limit switch signals---
+
+net b-home-sw   <= hm2_7i80.0.encoder.04.input-index
+net b-home-sw   => axis.4.home-sw-in
+#net b-home-sw   =>  axis.4.neg-lim-sw-in
+
+#########################################################
+
+#******************************
+# Connect miscellaneous signals
+#******************************
+
+
+# --- Emergency stop signals ---
+net estop-out     <=  iocontrol.0.user-enable-out
+net estop-out     =>  iocontrol.0.emc-enable-in
+
+#  ---HALUI signals---
+
+net axis-select-x  halui.joint.0.is-selected
+net jog-x-pos      halui.jog.0.plus
+net jog-x-neg      halui.jog.0.minus
+net jog-x-analog   halui.jog.0.analog
+net x-is-homed     halui.joint.0.is-homed
+net axis-select-y  halui.joint.1.is-selected
+net jog-y-pos      halui.jog.1.plus
+net jog-y-neg      halui.jog.1.minus
+net jog-y-analog   halui.jog.1.analog
+net y-is-homed     halui.joint.1.is-homed
+net axis-select-z  halui.joint.2.is-selected
+net jog-z-pos      halui.jog.2.plus
+net jog-z-neg      halui.jog.2.minus
+net jog-z-analog   halui.jog.2.analog
+net z-is-homed     halui.joint.2.is-homed
+net axis-select-a  halui.joint.3.is-selected
+net jog-a-pos      halui.jog.3.plus
+net jog-a-neg      halui.jog.3.minus
+net jog-a-analog   halui.jog.3.analog
+net a-is-homed     halui.joint.3.is-homed
+net axis-select-b  halui.joint.4.is-selected
+net jog-b-pos      halui.jog.4.plus
+net jog-b-neg      halui.jog.4.minus
+net jog-b-analog   halui.jog.4.analog
+net b-is-homed     halui.joint.4.is-homed
+
+net jog-selected-pos      halui.jog.selected.plus
+net jog-selected-neg      halui.jog.selected.minus
+net machine-is-on         halui.machine.is-on
+net MDI-mode              halui.mode.is-mdi
+
+########################################################

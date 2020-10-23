@@ -1,0 +1,16 @@
+The Moveo configuration is a set of files that makes up a very basic LinuxCNC simulation using
+ini, tbl, var. It is very similar to the sim config template, yet with 5 joints defined.
+
+The Moveo configuration was originally based on the Puma560 configuration but is UNTESTED against a real Moveo arm.
+
+
+moveo.ini
+
+-------------
+
+
+  Config file for a Moveo ARM 5-axis type robot.
+
+  
+  If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES 
+  as well, and make sure the position match (when run through the kinematics).

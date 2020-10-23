@@ -1,0 +1,9 @@
+### Core HAL config file for Stepper generation pinout of IMAGObot robot arm - 5 DOF
+#
+# Copyright Chew-Z 2017, Marco Antoni,Michele Scorsipa
+#
+
+## Connect Joint0-Joint4 physical pins to the parport0 signal
+
+
+

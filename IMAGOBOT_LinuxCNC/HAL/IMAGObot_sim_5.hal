@@ -1,0 +1,60 @@
+### Core HAL config file for Simulation of IMAGObot robot arm - 5 DOF
+#
+# Copyright Chew-Z 2017, Marco Antoni,Michele Scorsipa
+#
+
+### Add motion controller functions to Servo thread
+#addf motion-command-handler servo-thread
+#addf motion-controller servo-thread
+
+### Create HAL signals for position commands from motion module
+net x-pos-cmd <= axis.0.motor-pos-cmd
+net y-pos-cmd <= axis.1.motor-pos-cmd
+net z-pos-cmd <= axis.2.motor-pos-cmd
+net a-pos-cmd <= axis.3.motor-pos-cmd
+net b-pos-cmd <= axis.4.motor-pos-cmd
+
+### Loop position commands back to motion module feedback
+net x-pos-cmd => axis.0.motor-pos-fb
+net y-pos-cmd => axis.1.motor-pos-fb
+net z-pos-cmd => axis.2.motor-pos-fb
+net a-pos-cmd => axis.3.motor-pos-fb
+net b-pos-cmd => axis.4.motor-pos-fb
+
+### Estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+### Create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+
+### load IMAGObot gui model
+loadusr -W /home/cnc/Desktop/IMAGObot_last_mod/IMAGObotgui.py
+
+loadrt scale count=5
+
+addf scale.0 servo-thread
+addf scale.1 servo-thread
+addf scale.2 servo-thread
+addf scale.3 servo-thread
+addf scale.4 servo-thread
+
+linksp x-pos-cmd scale.0.in
+linksp y-pos-cmd scale.1.in
+linksp z-pos-cmd scale.2.in
+linksp a-pos-cmd scale.3.in
+linksp b-pos-cmd scale.4.in
+
+setp scale.0.gain 1
+setp scale.1.gain 1
+setp scale.2.gain 1
+setp scale.3.gain 1
+setp scale.4.gain 1
+
+net Joint0scaled scale.0.out IMAGObotgui.joint1
+net Joint1scaled scale.1.out IMAGObotgui.joint2
+net Joint2scaled scale.2.out IMAGObotgui.joint3
+net Joint3scaled scale.3.out IMAGObotgui.joint4
+net Joint4scaled scale.4.out IMAGObotgui.joint5
+
+

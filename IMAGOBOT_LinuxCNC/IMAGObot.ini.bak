@@ -1,0 +1,790 @@
+# EMC controller parameters for a simulated Moveo robot
+
+# General note: Comments can either be preceded with a # or ; - either is
+# acceptable, although # is in keeping with most linux config files.
+
+# Settings with a + at the front of the comment are likely needed to get 
+# changed by the user.
+# Settings with a - at the front are highly unneeded to be changed
+###############################################################################
+# General section 
+###############################################################################
+
+# General section -------------------------------------------------------------
+[EMC]
+
+#- Version of this INI file
+VERSION =               1.1
+
+#+ Name of machine, for use with display, etc.
+MACHINE =               EMC2-MOVEO
+
+#+ Debug level, 0 means no messages. See src/emc/nml_int/emcglb.h for others
+#DEBUG = 0
+#DEBUG =               0x00000007
+DEBUG =               0x7FFFFFFF
+
+###############################################################################
+# Sections for display options 
+###############################################################################
+[DISPLAY]
+
+# Name of display program, e.g., xemc
+DISPLAY =              axis 
+# DISPLAY =             usrmot
+# DISPLAY =             mini
+# DISPLAY = 		tkemc
+
+# Cycle time, in seconds, that display will sleep between polls
+CYCLE_TIME =            0.200
+
+# Path to help file
+HELP_FILE =             tkemc.txt
+
+# Initial display setting for position, RELATIVE or MACHINE
+POSITION_OFFSET =       MACHINE
+
+# Initial display setting for position, COMMANDED or ACTUAL
+POSITION_FEEDBACK =     ACTUAL
+
+# Highest value that will be allowed for feed override, 1.0 = 100%
+MAX_FEED_OVERRIDE =     4.0
+
+#+ Prefix to be used
+PROGRAM_PREFIX = /home/cnc/linuxcnc/nc_files/
+
+# Introductory graphic
+INTRO_GRAPHIC = emc2.gif
+INTRO_TIME = 1
+#PYVCP = moveo.xml
+
+# Editor to be used with Axis
+EDITOR = gedit
+INCREMENTS = 90 45 10 1 .1 .01 .001
+
+DEFAULT_ANGULAR_VELOCITY = 1
+MIN_ANGULAR_VELOCITY = 0.1
+MAX_ANGULAR_VELOCITY = 10
+
+
+###############################################################################
+# Task controller section 
+###############################################################################
+[TASK]
+
+# Name of task controller program, e.g., milltask
+TASK =                  milltask
+
+# Cycle time, in seconds, that task controller will sleep between polls
+CYCLE_TIME =            0.010
+
+###############################################################################
+# Part program interpreter section 
+###############################################################################
+[RS274NGC]
+
+# File containing interpreter variables
+PARAMETER_FILE =        moveo.var
+
+###############################################################################
+# Motion control section 
+###############################################################################
+[EMCMOT]
+
+EMCMOT =              motmod
+
+# Timeout for comm to emcmot, in seconds
+COMM_TIMEOUT =          1.0
+
+# Interval between tries to emcmot, in seconds
+COMM_WAIT =             0.010
+
+# Servo task period, in nanoseconds
+SERVO_PERIOD =               1000000
+# Trajectory Planner task period, in nanoseconds - will be rounded to an
+#   integer multiple of SERVO_PERIOD
+TRAJ_PERIOD =                10000000
+
+BASE_PERIOD = 50000
+
+###############################################################################
+# Hardware Abstraction Layer section
+###############################################################################
+[HAL]
+
+# The run script first uses halcmd to execute any HALFILE
+# files, and then to execute any individual HALCMD commands.
+#
+
+# list of hal config files to run through halcmd
+# files are executed in the order in which they appear
+
+# Lod Kinematic module and DH settings
+#HALFILE =                    HAL/moveo_kinematic.hal
+
+# Lod Simulation module
+#HALFILE =                    HAL/moveo_sim_5.hal
+
+# Load Stepper module
+HALFILE =                    HAL/moveo_step_5.hal
+HALFILE =                    HAL/moveo_pinout.hal
+
+POSTGUI_HALFILE =            HAL/moveo_postgui.hal
+
+#- list of halcmd commands to execute
+# commands are executed in the order in which they appear
+#HALCMD =                    save neta
+
+#load halui to enable 
+HALUI =                      halui
+
+###############################################################################
+# Trajectory planner section
+###############################################################################
+
+[KINS]
+JOINTS = 5
+KINEMATICS = trivkins
+
+[TRAJ]
+NO_FORCE_HOMING = 1
+# Machine specific settings
+AXES =                  5
+COORDINATES =           X Y Z A B 
+HOME = 			0 0 0 0 0 
+LINEAR_UNITS =          mm
+ANGULAR_UNITS =         deg
+CYCLE_TIME =            0.010
+DEFAULT_VELOCITY =      1.0
+MAX_VELOCITY =          10.0
+DEFAULT_ACCELERATION =  5
+MAX_ACCELERATION =      10.0
+
+###############################################################################
+# Axes sections
+###############################################################################
+
+# First axis, Joint0
+[AXIS_0]
+TYPE =                          ANGULAR
+HOME =                          0.0
+BACKLASH =                      0.00
+MIN_LIMIT =                     -250.0
+MAX_LIMIT =                     10.0
+MAX_VELOCITY =			200
+MAX_ACCELERATION = 		20
+
+FERROR =                        10.000
+MIN_FERROR =                    1.000
+HOME_OFFSET =                   0.0
+HOME_SEARCH_VEL =               0.0
+HOME_LATCH_VEL =                1.0
+HOME_USE_INDEX =                YES
+HOME_IGNORE_LIMITS =            NO
+HOME_SEQUENCE =                 0
+
+STEPGEN_MAXVEL = 220
+STEPGEN_MAXACCEL = 30
+DIRSETUP   = 5000
+DIRHOLD    = 5000
+STEPLEN    = 5000
+STEPSPACE  = 5000
+
+STEP_SCALE = 379.2592
+ENCODER_SCALE = -11.1111
+
+# PID control parameters
+P = 9.784732
+I = 32.85893
+D = 0.7284244
+FF0 = 0
+FF1 = 0
+FF2 = 0
+BIAS = 0
+DEADBAND = 0.01
+MAX_OUTPUT = 0
+
+# Second axis, Joint1
+[AXIS_1]
+TYPE =                          ANGULAR
+HOME =                          0.0
+BACKLASH =                      0.000
+MIN_LIMIT =                     -150.0
+MAX_LIMIT =                     10.0
+MAX_VELOCITY =			200
+MAX_ACCELERATION = 		20
+
+FERROR =                        10.000
+MIN_FERROR =                    1.000
+HOME_OFFSET =                   0.0
+HOME_SEARCH_VEL =               0.0
+HOME_LATCH_VEL =                1.0
+HOME_USE_INDEX =                YES
+HOME_IGNORE_LIMITS =            NO
+HOME_SEQUENCE =                 1
+
+STEPGEN_MAXVEL = 220
+STEPGEN_MAXACCEL = 30
+DIRSETUP   = 5000
+DIRHOLD    = 5000
+STEPLEN    = 5000
+STEPSPACE  = 5000
+
+STEP_SCALE = -203.1746
+ENCODER_SCALE = -11.1111
+
+# PID control parameters
+P = 5.965223
+I = 8.134395
+D = 0
+FF0 = 0
+FF1 = 1
+FF2 = 0
+BIAS = 0
+DEADBAND = 0.05
+MAX_OUTPUT = 0
+
+# Third axis, Joint2
+[AXIS_2]
+TYPE =                          ANGULAR
+HOME =                          0.0
+BACKLASH =                      0.000
+MIN_LIMIT =                     -175.0
+MAX_LIMIT =                     10.0
+MAX_VELOCITY =			200
+MAX_ACCELERATION = 		20
+
+FERROR =                        10.000
+MIN_FERROR =                    1.000
+HOME_OFFSET =                   0.0
+HOME_SEARCH_VEL =               0.0
+HOME_LATCH_VEL =                1.0
+HOME_USE_INDEX =                YES
+HOME_IGNORE_LIMITS =            NO
+HOME_SEQUENCE =                 2
+
+STEPGEN_MAXVEL = 124.3421
+STEPGEN_MAXACCEL = 30
+DIRSETUP   = 5000
+DIRHOLD    = 5000
+STEPLEN    = 5000
+STEPSPACE  = 5000
+
+STEP_SCALE = -804.2328
+ENCODER_SCALE = 11.1111
+
+# PID control parameters
+P = 1
+I = 0
+D = 0
+FF0 = 0
+FF1 = 1
+FF2 = 0
+BIAS = 0
+DEADBAND = 0.01
+MAX_OUTPUT = 0
+
+# Fourth axis, Joint3
+[AXIS_3]
+TYPE =                          ANGULAR
+HOME =                          0.0
+BACKLASH =                      0.000
+MIN_LIMIT =                     -200.0
+MAX_LIMIT =                     200.0
+MAX_VELOCITY =			10
+MAX_ACCELERATION = 		5
+
+FERROR =                        10.000
+MIN_FERROR =                    1.000
+HOME_OFFSET =                   0.0
+HOME_SEARCH_VEL =               0.0
+HOME_LATCH_VEL =                1.0
+HOME_USE_INDEX =                YES
+HOME_IGNORE_LIMITS =            NO
+HOME_SEQUENCE =                 3
+
+STEPGEN_MAXVEL = 12
+STEPGEN_MAXACCEL = 6
+DIRSETUP   = 650
+DIRHOLD    = 650
+STEPLEN    = 1900
+STEPSPACE  = 1900
+
+STEP_SCALE = 17.7778
+ENCODER_SCALE = 11.1111
+
+# PID control parameters
+P = 3
+I = 0
+D = 0.3
+FF0 = 0
+FF1 = 0.1
+FF2 = 0
+BIAS = 0
+DEADBAND = 0.1
+MAX_OUTPUT = 0
+
+# Fifth axis, Joint4
+[AXIS_4]
+TYPE =                          ANGULAR
+HOME =                          0.0
+BACKLASH =                      0.000
+MIN_LIMIT =                     -150.0
+MAX_LIMIT =                     50.0
+MAX_VELOCITY =			10
+MAX_ACCELERATION = 		5
+
+FERROR =                        10.000
+MIN_FERROR =                    1.000
+HOME_OFFSET =                   0.0
+HOME_SEARCH_VEL =               0.0
+HOME_LATCH_VEL =                1.0
+HOME_USE_INDEX =                YES
+HOME_IGNORE_LIMITS =            NO
+HOME_SEQUENCE =                 4
+
+STEPGEN_MAXVEL = 12
+STEPGEN_MAXACCEL = 6
+DIRSETUP   = 650
+DIRHOLD    = 650
+STEPLEN    = 1900
+STEPSPACE  = 1900
+
+STEP_SCALE = 82.963
+ENCODER_SCALE = 11.1111
+
+# PID control parameters
+P = 4.420966
+I = 8.27354
+D = 0
+FF0 = 0
+FF1 = 1
+FF2 = 0
+BIAS = 0
+DEADBAND = 0.01
+MAX_OUTPUT = 0
+   
+
+###############################################################################
+# section for main IO controller parameters 
+###############################################################################
+[EMCIO]
+
+#- Name of IO controller program, e.g., io
+EMCIO = 	                io
+
+#- cycle time, in seconds
+CYCLE_TIME =                    0.100
+
+#- tool table file
+TOOL_TABLE =                    moveo.tbl
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
