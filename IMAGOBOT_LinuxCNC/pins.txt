@@ -1,0 +1,24 @@
+Loaded HAL Components:
+ID      Type  Name                                            PID   State
+
+Component Pins:
+Owner   Type  Dir         Value  Name
+
+Pin Aliases:
+ Alias                                            Original Name
+
+Signals:
+Type          Value  Name     (linked to)
+
+Parameters:
+Owner   Type  Dir         Value  Name
+
+Parameter Aliases:
+ Alias                                            Original Name
+
+Exported Functions:
+Owner   CodeAddr  Arg       FP   Users  Name
+
+Realtime Threads:
+     Period  FP     Name               (     Time, Max-Time )
+

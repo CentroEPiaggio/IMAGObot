@@ -12,3 +12,8 @@ loadusr -Wn photoresistor $HOME/linuxcnc/script/arduino_photo_probe.py
 net photo-signal photoresistor.out => pyvcp.photo-signal
 
 loadusr -Wn relay $HOME/linuxcnc/script/arduino_relay.py
+
+
+loadusr -Wn distance $HOME/linuxcnc/script/arduino_ultrasonicsensor.py
+
+net sensor-signal motion.analog-in-01 <= distance.value

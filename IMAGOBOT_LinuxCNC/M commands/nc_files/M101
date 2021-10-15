@@ -1,0 +1,19 @@
+#!/bin/bash
+
+value = $1
+
+int = ${value%.*}
+
+if [ "$int" == "0" ]
+then
+halcmd setp relay.state FALSE
+halcmd setp pyvcp.relay-status FALSE
+fi
+
+if [ "$int" == "1" ]
+then
+halcmd setp relay.state TRUE
+halcmd setp pyvcp.relay-status TRUE
+fi
+
+exit 0

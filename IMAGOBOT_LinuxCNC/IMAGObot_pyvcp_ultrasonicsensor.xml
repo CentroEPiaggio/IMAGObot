@@ -1,0 +1,59 @@
+<pyvcp>
+
+<labelframe text="Photoresistor">
+<font>("Helvetica",16)</font>
+
+    <label>
+        <text>"Signal"</text>
+        <font>("Helvetica",12)</font>
+        <justify>CENTER</justify>
+    </label>
+ 
+    <s32>
+        <halpin>"photo-signal"</halpin>
+        <font>("Helvetica",14)</font>
+        <format>"3.0f"</format>
+        <width>2</width>
+        <justify>CENTER</justify>
+    </s32>
+
+    <label>
+        <text>"Light threshold"</text>
+        <font>("Helvetica",12)</font>
+        <justify>CENTER</justify>
+    </label>
+	
+    <spinbox>
+        <halpin>"photo-offset"</halpin>
+        <min_>0</min_>
+        <max_>255</max_>
+        <initval>30</initval>
+        <resolution>1</resolution>
+        <format>"3.0f"</format>
+        <font>("Helvetica",14)</font>
+        <width>2</width>
+        <justify>CENTER</justify>
+    </spinbox>
+	
+</labelframe>
+
+<labelframe text="Tool connection">
+<font>("Helvetica",16)</font>
+    
+    <hbox>
+        <label width="5"/>
+        <label>
+            <text>"State:"</text>
+            <font>("Helvetica",12)</font>
+        </label>
+        <led>
+            <halpin>"rele-status"</halpin>
+            <size>20</size>
+            <on_color>"green1"</on_color>
+            <off_color>"red1"</off_color>
+        </led>
+    </hbox>
+
+</labelframe>
+
+</pyvcp>

@@ -10,7 +10,10 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JO
 loadrt hostmot2
 loadrt hm2_eth board_ip=192.168.1.121 config=" num_encoders=5 num_pwmgens=0 num_stepgens=5 sserial_port_0=0000xx"
 setp    hm2_7i80.0.watchdog.timeout_ns 5000000
-loadrt pid names=pid.x,pid.y,pid.z,pid.a,pid.b
+loadrt pid names=pid.x,pid.y,pid.z,pid.a,pid.b,pid.s
+
+#loadrt debounce cfg=1
+
 
 addf hm2_7i80.0.read          servo-thread
 addf motion-command-handler   servo-thread
@@ -20,12 +23,25 @@ addf pid.y.do-pid-calcs       servo-thread
 addf pid.z.do-pid-calcs       servo-thread
 addf pid.a.do-pid-calcs       servo-thread
 addf pid.b.do-pid-calcs       servo-thread
+addf pid.s.do-pid-calcs       servo-thread
 addf hm2_7i80.0.write         servo-thread
 
 addf not.0		      servo-thread
 
-
+#addf debounce.0 servo-thread
 ######################################################
+
+
+#setp debounce.0.delay 300
+#net debounce-probe-in debounce.0.0.in <= hm2_7i80.0.gpio.000.in
+#net probe-in debounce.0.0.out => motion.probe-input
+
+
+
+#setp hm2_7i80.0.gpio.001.is_output 0
+net probe-signal hm2_7i80.0.7i76.0.0.input-01-not motion.probe-input
+
+
 
 #*******************
 # JOINT 0
@@ -384,6 +400,60 @@ net b-home-sw   => axis.4.home-sw-in
 #net b-home-sw   =>  axis.4.neg-lim-sw-in
 
 #########################################################
+
+
+#*******************
+#  SPINDLE
+#*******************
+
+setp   pid.s.Pgain     [SPINDLE_0]P
+setp   pid.s.Igain     [SPINDLE_0]I
+setp   pid.s.Dgain     [SPINDLE_0]D
+setp   pid.s.bias      [SPINDLE_0]BIAS
+setp   pid.s.FF0       [SPINDLE_0]FF0
+setp   pid.s.FF1       [SPINDLE_0]FF1
+setp   pid.s.FF2       [SPINDLE_0]FF2
+setp   pid.s.deadband  [SPINDLE_0]DEADBAND
+setp   pid.s.maxoutput [SPINDLE_0]MAX_OUTPUT
+setp   pid.s.error-previous-target true
+
+
+net spindle-index-enable  <=> pid.s.index-enable
+net spindle-enable        =>  pid.s.enable
+net spindle-vel-cmd-rpm     => pid.s.command
+net spindle-vel-fb-rpm      => pid.s.feedback
+net spindle-output        <=  pid.s.output
+
+# ---digital potentionmeter output signals/setup---
+
+setp   hm2_7i80.0.7i76.0.0.spinout-minlim    [SPINDLE_0]OUTPUT_MIN_LIMIT
+setp   hm2_7i80.0.7i76.0.0.spinout-maxlim    [SPINDLE_0]OUTPUT_MAX_LIMIT
+setp   hm2_7i80.0.7i76.0.0.spinout-scalemax  [SPINDLE_0]OUTPUT_SCALE
+
+net spindle-output      => hm2_7i80.0.7i76.0.0.spinout
+net spindle-enable      => hm2_7i80.0.7i76.0.0.spinena
+net spindle-ccw         => hm2_7i80.0.7i76.0.0.spindir
+
+# ---setup spindle control signals---
+
+net spindle-vel-cmd-rps        <=  motion.spindle-speed-out-rps
+net spindle-vel-cmd-rps-abs    <=  motion.spindle-speed-out-rps-abs
+net spindle-vel-cmd-rpm        <=  motion.spindle-speed-out
+net spindle-vel-cmd-rpm-abs    <=  motion.spindle-speed-out-abs
+net spindle-enable             <=  motion.spindle-on
+net spindle-cw                 <=  motion.spindle-forward
+net spindle-ccw                <=  motion.spindle-reverse
+net spindle-brake              <=  motion.spindle-brake
+net spindle-revs               =>  motion.spindle-revs
+net spindle-at-speed           =>  motion.spindle-at-speed
+net spindle-vel-fb-rps         =>  motion.spindle-speed-in
+net spindle-index-enable      <=>  motion.spindle-index-enable
+
+# ---Setup spindle at speed signals---
+
+sets spindle-at-speed true
+
+
 
 #******************************
 # Connect miscellaneous signals

@@ -1,15 +1,15 @@
-The IMAGObot configuration is a set of files that makes up a very basic LinuxCNC simulation using
-ini, tbl, var. It is very similar to the sim config template, yet with 5 rotary joints defined.
+The Moveo configuration is a set of files that makes up a very basic LinuxCNC simulation using
+ini, tbl, var. It is very similar to the sim config template, yet with 5 joints defined.
 
-The IMAGObot configuration has been tested with a real 5 DoF robotic arm (stl files to built the robot in the repository).
+The Moveo configuration was originally based on the Puma560 configuration but is UNTESTED against a real Moveo arm.
 
 
-IMAGObot.ini
+moveo.ini
 
 -------------
 
 
-  Config file for IMAGObot ARM 5-axis type robot.
+  Config file for a Moveo ARM 5-axis type robot.
 
   
   If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES 

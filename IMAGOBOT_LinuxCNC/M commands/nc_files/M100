@@ -1,0 +1,5 @@
+#!/bin/bash
+spray=$1
+halcmd setp arduino.pressure $spray
+halcmd setp arduino.pressure 0
+exit 0
